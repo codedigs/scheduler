@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scheduler</title>
+
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="page-header">Scheduler</h1>
+
+                <div class="schedule-wrapper">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h2 class="panel-title">Schedule</h2>
+                                </div>
+                                <div class="panel-body">
+                                    <button class="btn btn-xs btn-info" id="view-other-schedules">
+                                        <span class="badge">0</span> Found Valid Schedules
+                                    </button>
+                                </div>
+
+                                <table class="table table-hover table-bordered table-condensed sched-table" id="sched-table">
+                                    <thead></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="active-schedule-details"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/template" id="schedule-details-tmpl">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Top <%= top_num %> Details
+            </div>
+            <table class="table table-hover table-condensed table-bordered table-striped schedule-details-table">
+                <thead>
+                    <tr>
+                        <th>Teachers</th>
+                        <th>Top 1 (<%= points[0] %>)</th>
+                        <th>Top 2 (<%= points[1] %>)</th>
+                        <th>Top 3 (<%= points[2] %>)</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% _.each(schedule, function(sched) { %>
+                        <tr>
+                            <td rowspan="2"><%= sched.teacher.name %></td>
+                            <td><%= sched.top_subjects[0] %></td>
+                            <td><%= sched.top_subjects[1] %></td>
+                            <td><%= sched.top_subjects[2] %></td>
+                            <td rowspan="2" class="bg-success"><%= sched.points %></td>
+                        </tr>
+                        <tr>
+                            <td><%= sched.valid_combination[0] %></td>
+                            <td><%= sched.valid_combination[1] %></td>
+                            <td><%= sched.valid_combination[2] %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" class="bg-success"><b>Total Points: <%= schedule.total_points %></b></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </script>
+
+    <script type="text/template" id="valid-schedule-tmpl">
+        <table class="table table-hover table-condensed table-bordered top-schedules-table">
+            <thead>
+                <tr>
+                    <th>Top #</th>
+                    <th>Total Points</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (container.length > 0) { %>
+                    <% _.each(container, function(con, i) { %>
+                        <tr class="<%= selected_schedule == (i+1) ? 'bg-success' : '' %>">
+                            <td><%= i+1 %></td>
+                            <td><%= con.total_points %></td>
+                            <td>
+                                <button class="btn btn-xs btn-default view-details" data-top-num="<%= i+1 %>">View Details</button>
+                                <button class="btn btn-xs btn-success change-schedule" data-top-num="<%= i+1 %>" <%= selected_schedule == (i+1) ? 'disabled' : '' %>>Change</button>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="3">No Schedule Available</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </script>
+
+    <script src="js/schedule.js"></script>
+
+    <script type="text/javascript">
+        $.fn.filterData = function(key, value, not) {
+            return this.filter(function() {
+                var result = $(this).data(key) == value;
+                return not ? !result : result;
+            });
+        };
+
+        function title_case(str) {
+          return str.toLowerCase().split(' ').map(function(word) {
+            return (word.charAt(0).toUpperCase() + word.slice(1));
+          }).join(' ');
+        }
+    </script>
+</body>
+</html>

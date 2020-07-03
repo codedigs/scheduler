@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scheduler</title>
+
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="page-header">Scheduler</h1>
+
+                <div class="teacher-crud-wrapper">
+                    <form>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h2 class="panel-title">Provide Teachers</h2>
+                            </div>
+                            <div class="panel-body">
+                                <div class="pull-right">
+                                    <button type="submit" class="btn btn-success btn-xs">
+                                        <span class="glyphicon glyphicon-calendar"></span> Generate Schedule
+                                    </button>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Select Grade:</label>
+                                    <div class="btn-group" data-toggle="buttons">
+                                        <label class="btn btn-default btn-xs active">
+                                            <input type="radio" name="grade" value="3" checked> 3
+                                        </label>
+                                        <label class="btn btn-default btn-xs">
+                                            <input type="radio" name="grade" value="4"> 4
+                                        </label>
+                                        <label class="btn btn-default btn-xs">
+                                            <input type="radio" name="grade" value="5"> 5
+                                        </label>
+                                        <label class="btn btn-default btn-xs">
+                                            <input type="radio" name="grade" value="6"> 6
+                                        </label>
+                                    </div>
+
+                                    <label class="margin-left">Select Maximum Number of Schedule:</label>
+                                    <div class="btn-group" data-toggle="buttons">
+                                        <label class="btn btn-default btn-xs">
+                                            <input type="radio" name="maximum_number_of_schedule" value="1"> 1
+                                        </label>
+                                        <label class="btn btn-default btn-xs">
+                                            <input type="radio" name="maximum_number_of_schedule" value="2"> 2
+                                        </label>
+                                        <label class="btn btn-default btn-xs">
+                                            <input type="radio" name="maximum_number_of_schedule" value="3"> 3
+                                        </label>
+                                        <label class="btn btn-default btn-xs">
+                                            <input type="radio" name="maximum_number_of_schedule" value="4"> 4
+                                        </label>
+                                        <label class="btn btn-default btn-xs active">
+                                            <input type="radio" name="maximum_number_of_schedule" value="5" checked> 5
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary btn-xs" id="add-teacher">
+                                        <span class="glyphicon glyphicon-plus"></span> Add Teacher
+                                    </button>
+                                </div>
+                            </div>
+
+                            <table class="table table-condensed table-bordered table-hover" id="teachers-table">
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="schedule-wrapper" style="display: none">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h2 class="panel-title">Schedule</h2>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="pull-right">
+                                        <!-- <button type="button" class="btn btn-default btn-xs back-to-teacher-crud">
+                                            <span class="glyphicon glyphicon-arrow-left"></span> Back
+                                        </button> -->
+
+                                        <!-- <button type="button" class="btn btn-success btn-xs" id="print-schedule">
+                                            <span class="glyphicon glyphicon-print"></span> Print
+                                        </button> -->
+                                    </div>
+
+                                    <!-- <h3 class="no-margin-top">Other Options:</h3>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="enable_same_first_last_advisory_schedule"> Enable same first/last advisory schedule
+                                        </label>
+                                    </div> -->
+
+                                    <!-- <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label>Select Start Time:</label>
+                                                        <select name="start_time" class="form-control">
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> -->
+
+                                    <button class="btn btn-xs btn-info" id="view-other-schedules">
+                                        <span class="badge">0</span> Found Valid Schedules
+                                    </button>
+
+                                    <div class="searching-valid-sched-wrapper">
+                                        <p>Searching valid schedule may take some time.</p>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="progress">
+                                                    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                                                        Please wait
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-bordered table-condensed sched-table" id="sched-table">
+                                        <thead></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="active-schedule-details"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/template" id="teacher-row-tmpl">
+        <tr>
+            <td>
+                <div class="form-group">
+                    <label for="teacher">Name</label>
+                    <input type="text" name="teachers[<%= row_index %>]" class="form-control" required />
+                </div>
+            </td>
+            <td width="15%">
+                <label>
+                    <input type="radio" name="is_advisory[<%= row_index %>]" value="1" autocomplete="off" checked> Advisory
+                </label>
+
+                <label>
+                    <input type="radio" name="is_advisory[<%= row_index %>]" value="0" autocomplete="off"> Non Advisory
+                </label>
+
+                <div class="form-group">
+                    <div class="no-padding-right">
+                        <select class="form-control" name="non_advisory_type[<%= row_index %>]" style="display: none">
+                            <option value="">Select Teacher Type</option>
+                            <% _.each(teachers_loads, function(load, type) { %>
+                                <option value='{"load":<%= load %>,"type":"<%= type.replace("_", " ") %>"}'><%= type.toUpperCase().replace("_", " ") %> (<%= load %> mins)</option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="top3_subjects1">Top 1</label>
+
+                            <select name="top3_subjects1[<%= row_index %>]" class="form-control" required>
+                                <option value="{}">-- Select Subject --</option>
+                                <% _.each(subjects_loads, function(load, subject) { %>
+                                    <option class="<%= ['mtb', 'epp'].indexOf(subject) !== -1 ? 'multiple-subject' : '' %>" value='{"load":<%= load %>,"subject":"<%= subject.replace("_", " ") %>"}'><%= subject.toUpperCase().replace("_", " ") %> (<%= load %> mins)</option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="top3_subjects2">Top 2</label>
+
+                            <select name="top3_subjects2[<%= row_index %>]" class="form-control" required disabled>
+                                <option value="{}">-- Select Subject --</option>
+                                <% _.each(subjects_loads, function(load, subject) { %>
+                                    <option class="<%= ['mtb', 'epp'].indexOf(subject) !== -1 ? 'multiple-subject' : '' %>" value='{"load":<%= load %>,"subject":"<%= subject.replace("_", " ") %>"}'><%= subject.toUpperCase().replace("_", " ") %> (<%= load %> mins)</option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="top3_subjects3">Top 3</label>
+
+                            <select name="top3_subjects3[<%= row_index %>]" class="form-control" required disabled>
+                                <option value="{}">-- Select Subject --</option>
+                                <% _.each(subjects_loads, function(load, subject) { %>
+                                    <option class="<%= ['mtb', 'epp'].indexOf(subject) !== -1 ? 'multiple-subject' : '' %>" value='{"load":<%= load %>,"subject":"<%= subject.replace("_", " ") %>"}'><%= subject.toUpperCase().replace("_", " ") %> (<%= load %> mins)</option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <label>Minimum Range</label>
+
+                <div class="form-group">
+                    <output class="text-center"><%= max_range %></output>
+                    <input type="range" name="minimum_range" min="<%= min_range %>" max="<%= max_range %>" step="10" value="<%= max_range %>" />
+                </div>
+            </td>
+            <td style="vertical-align: middle">
+                <button type="button" class="btn btn-danger btn-xs delete-teacher">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+        </tr>
+    </script>
+
+    <script type="text/template" id="schedule-details-tmpl">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Top <%= top_num %> Details
+            </div>
+            <table class="table table-hover table-condensed table-bordered table-striped schedule-details-table">
+                <thead>
+                    <tr>
+                        <th>Teachers</th>
+                        <th>Top 1 (<%= points[0] %>)</th>
+                        <th>Top 2 (<%= points[1] %>)</th>
+                        <th>Top 3 (<%= points[2] %>)</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% _.each(schedule, function(sched) { %>
+                        <tr>
+                            <td rowspan="2"><%= sched.teacher.name %></td>
+                            <td><%= sched.top_subjects[0] %></td>
+                            <td><%= sched.top_subjects[1] %></td>
+                            <td><%= sched.top_subjects[2] %></td>
+                            <td rowspan="2" class="bg-success"><%= sched.points %></td>
+                        </tr>
+                        <tr>
+                            <td><%= sched.valid_combination[0] %></td>
+                            <td><%= sched.valid_combination[1] %></td>
+                            <td><%= sched.valid_combination[2] %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" class="bg-success"><b>Total Points: <%= schedule.total_points %></b></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </script>
+
+    <script type="text/template" id="valid-schedule-tmpl">
+        <table class="table table-hover table-condensed table-bordered top-schedules-table">
+            <thead>
+                <tr>
+                    <th>Top #</th>
+                    <th>Total Points</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (container.length > 0) { %>
+                    <% _.each(container, function(con, i) { %>
+                        <tr class="<%= selected_schedule == (i+1) ? 'bg-success' : '' %>">
+                            <td><%= i+1 %></td>
+                            <td><%= con.total_points %></td>
+                            <td>
+                                <button class="btn btn-xs btn-default view-details" data-top-num="<%= i+1 %>">View Details</button>
+                                <button class="btn btn-xs btn-success change-schedule" data-top-num="<%= i+1 %>">Change</button>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="3">No Schedule Available</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </script>
+
+    <script src="js/app.js"></script>
+
+    <script type="text/javascript">
+        $.fn.filterData = function(key, value, not) {
+            return this.filter(function() {
+                var result = $(this).data(key) == value;
+                return not ? !result : result;
+            });
+        };
+
+        function title_case(str) {
+          return str.toLowerCase().split(' ').map(function(word) {
+            return (word.charAt(0).toUpperCase() + word.slice(1));
+          }).join(' ');
+        }
+
+        function getSubjectsLoads() {
+            var grade = parseInt($(':input[name="grade"]:checked').val());
+
+            var subjects = {
+              filipino: 50,
+              english: 50,
+              math: 50,
+              science: 50,
+              ap: 40,
+              mapeh: 40,
+              esp: 30,
+              mtb: 50
+            };
+
+            if (grade > 3) {
+              delete subjects.mtb;
+              subjects.epp = 50;
+            }
+
+            return subjects;
+          }
+    </script>
+</body>
+</html>
