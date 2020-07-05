@@ -2963,15 +2963,20 @@ var Schedule = {
       teacher_name = title_case(teacher.name);
     }
 
+    var subject = "";
+    if (teacher.subject !== undefined) {
+      subject = teacher.subject;
+    }
+
     var tr = $('tr[data-hour="'+range.hour+'"][data-minute="'+range.minute+'"]', schedTblEl);
     $('td[data-section="'+teacher.section+'"]', tr)
       .data({
         teacher: teacher_name.toLowerCase(),
-        subject: teacher.subject
+        subject: subject
       })
       .attr("rowspan", range.step)
       .css("background-color", bg)
-      .html('<h3 class="content">'+teacher.subject.toUpperCase()+' <br> '+teacher_name+'</h3>');
+      .html('<h3 class="content">'+subject.toUpperCase()+' <br> '+teacher_name+'</h3>');
 
     // hide affected rows
     for (var i = 1; i < range.step; i++) {
@@ -4359,8 +4364,8 @@ var Schedule = {
 
       $('.teacher-crud-wrapper').slideUp(function() {
         $('.searching-valid-sched-wrapper').show().find(".progress-bar").text("Please wait");
-        $('#view-other-schedules').hide();
-        $('.back-to-teacher-crud').hide();
+        // $('#view-other-schedules').hide();
+        // $('.back-to-teacher-crud').hide();
         $('#sched-table').addClass("invisible");
 
         $('#active-schedule-details').html("");
@@ -4371,24 +4376,41 @@ var Schedule = {
           Schedule.displayTime(Schedule.START_TIME, Schedule.END_TIME);
           Schedule.appendPointsAndSort();
 
+          Schedule.sections = [];
+
+          $('#teachers-table :input[name^="is_advisory"][value="1"]:checked').each(function(i, e) {
+            var tr = $(e).closest('tr');
+            var section = $(':input[name^="teachers"]', tr).val();
+
+            Schedule.sections.push(section.toLowerCase());
+          });
+
+          var schedPoints = Schedule.getSchedulePoints(Schedule.container[0]);
+
           console.time("validating elapse time");
           var valid_sched = Schedule.plotAndCheck(Schedule.container[0]);
           console.log("IS VALID? =>", (valid_sched ? "YES" : "NO"));
           console.timeEnd("validating elapse time");
 
-          $('.searching-valid-sched-wrapper').slideUp(function() {
-            $('.back-to-teacher-crud').show();
-            $('#sched-table').removeClass("invisible");
+          if (valid_sched) {
+            Schedule.savePlottedSchedule(schedPoints.total);
+          } else {
+            Schedule.container.pop();
+          }
 
-            var tmpl = _.template($('#schedule-details-tmpl').html());
-            $('#active-schedule-details').html(tmpl({
-              points: Schedule.POINTS,
-              top_num: 1,
-              schedule: Schedule.container[0]
-            }));
+          $('#sched-table').removeClass("invisible");
 
-            Schedule.container = [];
-          });
+          // $('.searching-valid-sched-wrapper').slideUp(function() {
+
+          //   var tmpl = _.template($('#schedule-details-tmpl').html());
+          //   $('#active-schedule-details').html(tmpl({
+          //     points: Schedule.POINTS,
+          //     top_num: 1,
+          //     schedule: Schedule.container[0]
+          //   }));
+
+          //   Schedule.container = [];
+          // });
         });
       });
     }
